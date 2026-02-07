@@ -1521,6 +1521,50 @@ function Luminosity.new(Name, Header, Icon)
         end
     end
 
+    function Window:Destroy()
+        -- Отключаем все соединения перетаскивания
+        if DragPro then
+            DragPro:Destroy()
+        end
+        
+        -- Отключаем все бинды клавиш
+        for _, bindID in pairs(Binds) do
+            pcall(function()
+                Services.ContextActionService:UnbindAction(bindID)
+            end)
+        end
+        
+        -- Анимация закрытия
+        local AbsolutePosition = Main.AbsolutePosition
+        local AbsoulteSize = Main.AbsoluteSize
+        
+        Main.AnchorPoint = Vector2.new(0.5, 0.5)
+        Main.Position = UDim2.new(0, AbsolutePosition.X + (AbsoulteSize.X * 0.5), 0, AbsolutePosition.Y + (AbsoulteSize.Y * 0.5))
+        Main.UISizeConstraint.MinSize = Vector2.new(0, 0)
+        
+        Utility.Tween(Main, TweenInfo.new(0.5), {
+            Size = UDim2.new(0, 0, 0, 0),
+            BackgroundTransparency = 1
+        }):Yield()
+        
+        -- Удаляем окно
+        if Main and Main.Parent then
+            Main:Destroy()
+        end
+        
+        -- Очищаем глобальные переменные
+        _G.Luminosity_Loaded = false
+        _G.Luminosity = nil
+        
+        -- Очищаем таблицу Window
+        for k in pairs(self) do
+            self[k] = nil
+        end
+        
+        -- Очищаем таблицу Binds
+        table.clear(Binds)
+    end
+
     function Window.Tab(Title, Icon)
         local TabFrame = Utility.new("ScrollingFrame", {
             Name = "Tab",
