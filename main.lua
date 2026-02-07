@@ -1683,7 +1683,7 @@ function Luminosity.new(Name, Header, Icon)
                         LayoutOrder = -5,
                         Size = UDim2.new(1, 0, 0, 30),
                         Font = Enum.Font.Gotham,
-                        Text = Description and tostring(Description) or "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras justo urna, mattis et neque non.",
+                        Text = Description and tostring(Description) or "Choose Description.",
                         RichText = true,
                         TextColor3 = Color3.fromRGB(255, 255, 255),
                         TextSize = 14,
@@ -1760,7 +1760,7 @@ function Luminosity.new(Name, Header, Icon)
                     if Index == "Title" then
                         Base.Title.Text = Value and tostring(Value) or "Folder"
                     elseif Index == "Description" then
-                        Base.Info.Description.Text = Value and tostring(Value) or "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras justo urna, mattis et neque non."
+                        Base.Info.Description.Text = Value and tostring(Value) or "Choose Description."
                         Base.Info.Description.Size = UDim2.new(1, 0, 0, Services.TextService:GetTextSize(Base.Info.Description.Text, 14, Enum.Font.Gotham, Vector2.new(Base.Info.Description.AbsoluteSize.X, math.huge)).Y + 5)
                     end
                     rawset(Properties, Index, Value)
@@ -1864,7 +1864,7 @@ function Luminosity.new(Name, Header, Icon)
                         LayoutOrder = -5,
                         Size = UDim2.new(1, 0, 0, 30),
                         Font = Enum.Font.Gotham,
-                        Text = Description and tostring(Description) or "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras justo urna, mattis et neque non.",
+                        Text = Description and tostring(Description) or "Choose Description.",
                         RichText = true,
                         TextColor3 = Color3.fromRGB(255, 255, 255),
                         TextSize = 14,
@@ -1963,7 +1963,7 @@ function Luminosity.new(Name, Header, Icon)
                     if Index == "Title" then
                         Base.Title.Text = Value and tostring(Value) or "Cheat"
                     elseif Index == "Description" then
-                        Base.Info.Description.Text = Value and tostring(Value) or "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras justo urna, mattis et neque non."
+                        Base.Info.Description.Text = Value and tostring(Value) or "Choose Description."
                         Base.Info.Description.Size = UDim2.new(1, 0, 0, Services.TextService:GetTextSize(Base.Info.Description.Text, 14, Enum.Font.Gotham, Vector2.new(Base.Info.Description.AbsoluteSize.X, math.huge)).Y + 5)
                     elseif Index == "Value" then
                         Info.Toggled = Value
