@@ -1466,6 +1466,8 @@ function Luminosity.new(Name, Header, Icon)
             Utility.new("UISizeConstraint", {MaxSize = Vector2.new(1400, 950), MinSize = Vector2.new(300, 200)})
         }
     )
+    Main.AnchorPoint = Vector2.new(0.5, 0.5)
+    Main.Position = UDim2.new(0.5, 0, 0.5, 0)
     local DragPro = Utility.CreateDrag(Main, Main, {TweenDuration = 0.15, TweenStyle = Enum.EasingStyle.Quad})
     local UIPageLayout = Main.Contents.UIPageLayout
 
@@ -1486,24 +1488,34 @@ function Luminosity.new(Name, Header, Icon)
         Toggled = true;
     }
     local WindowInfo = {
-        SizeSave = UDim2.new(0, 700, 0, 500)
+        SizeSave = Main.Size,
+        PositionSave = Main.Position,
+        AnchorPointSave = Main.AnchorPoint
     }
 
     function Window:Toggle(Value)
         Window.Toggled = Value or not Window.Toggled
 
-        local AbsolutePosition = Main.AbsolutePosition
-        local AbsoulteSize = Main.AbsoluteSize
         if Window.Toggled == true then
             Main.Visible = true
+            Main.AnchorPoint = Vector2.new(0, 0) -- Возвращаем AnchorPoint в начальное состояние
+            Main.Position = WindowInfo.PositionSave or UDim2.new(0.5, 0, 0.5, 0) -- Используем сохраненную позицию или центр
             Utility.Tween(Main, TweenInfo.new(0.25), {Size = WindowInfo.SizeSave}):Yield()
             Main.UISizeConstraint.MinSize = Vector2.new(300, 200)
-            Main.Position = UDim2.new(0, AbsolutePosition.X, 0, AbsolutePosition.Y)
         else
+            -- Сохраняем текущую позицию и размер перед закрытием
             WindowInfo.SizeSave = Main.Size
-            Main.Position = UDim2.new(0, AbsolutePosition.X + (AbsoulteSize.X * 0.5), 0, AbsolutePosition.Y + (AbsoulteSize.Y * 0.5))
+            WindowInfo.PositionSave = Main.Position
+            WindowInfo.AnchorPointSave = Main.AnchorPoint
+            
+            local AbsolutePosition = Main.AbsolutePosition
+            local AbsoulteSize = Main.AbsoluteSize
+            
+            -- Позиционируем окно для анимации закрытия
             Main.AnchorPoint = Vector2.new(0.5, 0.5)
+            Main.Position = UDim2.new(0, AbsolutePosition.X + (AbsoulteSize.X * 0.5), 0, AbsolutePosition.Y + (AbsoulteSize.Y * 0.5))
             Main.UISizeConstraint.MinSize = Vector2.new(0, 0)
+            
             Utility.Tween(Main, TweenInfo.new(0.5), {Size = UDim2.new(0, 0, 0, 0)}):Yield()
             Main.Visible = false
         end
