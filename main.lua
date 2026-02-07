@@ -1,26 +1,3 @@
---[[
-     _              _             _ _
-    | |  _  _ _ __ (_)_ _  ___ __(_) |_ _  _
-    | |_| || | '  \| | ' \/ _ (_-< |  _| || |
-    |____\_,_|_|_|_|_|_||_\___/__/_|\__|\_, |
-                                        |__/
-	Source:
-        https://raw.githubusercontent.com/icuck/GenesisStudioLibraries/main/Elerium%20Interface%20Library.lua
-
-	Version:
-        0.0.1
-
-	Date:
-        October 19th, 2020
-
-	Author:
-        OminousVibes @ v3rmillion.net / OminousVibes#1234 @ discord.gg
-
-    Credits:
-        (None Yet)
-
-]]
-
 -- [ Initialize ] --
 -- Destroy Previous UI's --
 if _G.Luminosity_Loaded and _G.Luminosity then
@@ -855,6 +832,468 @@ local function CreateOptions(Frame)
     return Options
 end
 
+-- // Notification System \\ --
+local NotificationContainer = Utility.new("Frame", {
+    Name = "NotificationContainer",
+    Parent = Luminosity.ScreenGui,
+    BackgroundTransparency = 1,
+    AnchorPoint = Vector2.new(1, 1),
+    Position = UDim2.new(1, -20, 1, -20),
+    Size = UDim2.new(0, 300, 0.8, 0),
+    ZIndex = 100
+}, {
+    Utility.new("UIListLayout", {
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Padding = UDim.new(0, 10),
+        HorizontalAlignment = Enum.HorizontalAlignment.Right,
+        VerticalAlignment = Enum.VerticalAlignment.Bottom
+    })
+})
+
+-- [ Types ] --
+Luminosity.Notify = {
+    Colors = {
+        Success = Color3.fromRGB(46, 204, 113);
+        Error = Color3.fromRGB(231, 76, 60);
+        Warning = Color3.fromRGB(241, 196, 15);
+        Info = Color3.fromRGB(52, 152, 219);
+        Default = Luminosity.ColorScheme.Primary;
+    };
+    Icons = {
+        Success = "rbxassetid://6026561180";
+        Error = "rbxassetid://6026561178";
+        Warning = "rbxassetid://6026561176";
+        Info = "rbxassetid://6026561174";
+        Default = "rbxassetid://6026561172";
+    };
+}
+
+-- [ Notification Function ] --
+function Luminosity.Notify:Create(Title, Message, Type, Duration, Callback)
+    -- Default Values
+    Type = Type or "Default"
+    Duration = Duration or 5
+    Callback = Callback or function() end
+    
+    -- Calculate Height based on Message Length
+    local TextSize = Services.TextService:GetTextSize(Message, 14, Enum.Font.Gotham, Vector2.new(260, math.huge))
+    local NotificationHeight = math.clamp(TextSize.Y + 70, 80, 150)
+    
+    -- Create Notification
+    local Notification = Utility.new("Frame", {
+        Name = "Notification",
+        Parent = NotificationContainer,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 0),
+        LayoutOrder = 999,
+        ZIndex = 101
+    }, {
+        Utility.new("ImageLabel", {
+            Name = "Background",
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 1, 0),
+            Image = "rbxassetid://3570695787",
+            ImageColor3 = Color3.fromRGB(40, 43, 48),
+            ScaleType = Enum.ScaleType.Slice,
+            SliceCenter = Rect.new(100, 100, 100, 100),
+            SliceScale = 0.05
+        }, {
+            Utility.new("UICorner", {CornerRadius = UDim.new(0, 8)}),
+            Utility.new("UIStroke", {
+                Color = self.Colors[Type] or self.Colors.Default,
+                Thickness = 2,
+                Transparency = 0.5
+            })
+        }),
+        
+        Utility.new("Frame", {
+            Name = "Content",
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -20, 1, -20),
+            Position = UDim2.new(0, 10, 0, 10)
+        }, {
+            Utility.new("ImageLabel", {
+                Name = "Icon",
+                BackgroundTransparency = 1,
+                Size = UDim2.new(0, 25, 0, 25),
+                Position = UDim2.new(0, 0, 0, 0),
+                Image = self.Icons[Type] or self.Icons.Default,
+                ImageColor3 = self.Colors[Type] or self.Colors.Default,
+                ScaleType = Enum.ScaleType.Fit
+            }),
+            
+            Utility.new("TextLabel", {
+                Name = "Title",
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0, 35, 0, 0),
+                Size = UDim2.new(1, -35, 0, 25),
+                Font = Enum.Font.GothamBold,
+                Text = Title or "Notification",
+                TextColor3 = Color3.fromRGB(255, 255, 255),
+                TextSize = 16,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                TextTruncate = Enum.TextTruncate.AtEnd
+            }),
+            
+            Utility.new("TextLabel", {
+                Name = "Message",
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0, 0, 0, 30),
+                Size = UDim2.new(1, 0, 1, -30),
+                Font = Enum.Font.Gotham,
+                Text = Message or "",
+                TextColor3 = Color3.fromRGB(200, 200, 200),
+                TextSize = 14,
+                TextWrapped = true,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                TextYAlignment = Enum.TextYAlignment.Top
+            }),
+            
+            Utility.new("Frame", {
+                Name = "ProgressBar",
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0, 0, 1, -5),
+                Size = UDim2.new(1, 0, 0, 3)
+            }, {
+                Utility.new("Frame", {
+                    Name = "Bar",
+                    BackgroundColor3 = self.Colors[Type] or self.Colors.Default,
+                    Size = UDim2.new(1, 0, 1, 0)
+                }, {
+                    Utility.new("UICorner", {CornerRadius = UDim.new(1, 0)})
+                })
+            })
+        })
+    })
+    
+    -- Animate In
+    Utility.Tween(Notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(1, 0, 0, NotificationHeight)
+    }):Play()
+    
+    -- Progress Bar Animation
+    local ProgressBar = Notification.Content.ProgressBar.Bar
+    Utility.Tween(ProgressBar, TweenInfo.new(Duration, Enum.EasingStyle.Linear), {
+        Size = UDim2.new(0, 0, 1, 0)
+    }):Play()
+    
+    -- Auto-remove after duration
+    local AutoRemove = coroutine.create(function()
+        Utility.Wait(Duration)
+        Utility.Tween(Notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Size = UDim2.new(1, 0, 0, 0)
+        }):Play()
+        Utility.Wait(0.3)
+        if Notification and Notification.Parent then
+            Notification:Destroy()
+        end
+        pcall(Callback)
+    end)
+    coroutine.resume(AutoRemove)
+    
+    -- Manual close on click
+    Notification.Background.InputBegan:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+            Utility.Tween(Notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+                Size = UDim2.new(1, 0, 0, 0)
+            }):Play()
+            Utility.Wait(0.3)
+            if Notification and Notification.Parent then
+                Notification:Destroy()
+            end
+            pcall(Callback)
+        end
+    end)
+    
+    return {
+        Destroy = function()
+            if Notification and Notification.Parent then
+                Utility.Tween(Notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+                    Size = UDim2.new(1, 0, 0, 0)
+                }):Play()
+                Utility.Wait(0.3)
+                Notification:Destroy()
+            end
+        end,
+        
+        Update = function(NewTitle, NewMessage, NewType)
+            if Notification and Notification.Parent then
+                if NewTitle then
+                    Notification.Content.Title.Text = NewTitle
+                end
+                if NewMessage then
+                    Notification.Content.Message.Text = NewMessage
+                    local NewTextSize = Services.TextService:GetTextSize(NewMessage, 14, Enum.Font.Gotham, Vector2.new(260, math.huge))
+                    local NewHeight = math.clamp(NewTextSize.Y + 70, 80, 150)
+                    Utility.Tween(Notification, TweenInfo.new(0.3), {
+                        Size = UDim2.new(1, 0, 0, NewHeight)
+                    }):Play()
+                end
+                if NewType then
+                    Notification.Background.UIStroke.Color = self.Colors[NewType] or self.Colors.Default
+                    Notification.Content.Icon.ImageColor3 = self.Colors[NewType] or self.Colors.Default
+                    Notification.Content.Icon.Image = self.Icons[NewType] or self.Icons.Default
+                    Notification.Content.ProgressBar.Bar.BackgroundColor3 = self.Colors[NewType] or self.Colors.Default
+                end
+            end
+        end
+    }
+end
+
+-- [ Quick Notification Functions ] --
+function Luminosity.Notify:Success(Title, Message, Duration, Callback)
+    return self:Create(Title, Message, "Success", Duration, Callback)
+end
+
+function Luminosity.Notify:Error(Title, Message, Duration, Callback)
+    return self:Create(Title, Message, "Error", Duration, Callback)
+end
+
+function Luminosity.Notify:Warning(Title, Message, Duration, Callback)
+    return self:Create(Title, Message, "Warning", Duration, Callback)
+end
+
+function Luminosity.Notify:Info(Title, Message, Duration, Callback)
+    return self:Create(Title, Message, "Info", Duration, Callback)
+end
+
+-- [ Extended Notification (with buttons) ] --
+function Luminosity.Notify:Extended(Title, Message, Type, Buttons, Duration)
+    Type = Type or "Default"
+    Duration = Duration or 10
+    
+    local TextSize = Services.TextService:GetTextSize(Message, 14, Enum.Font.Gotham, Vector2.new(260, math.huge))
+    local NotificationHeight = math.clamp(TextSize.Y + (Buttons and 110 or 70), 80, 200)
+    
+    local Notification = Utility.new("Frame", {
+        Name = "ExtendedNotification",
+        Parent = NotificationContainer,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 0),
+        LayoutOrder = 999,
+        ZIndex = 101
+    }, {
+        Utility.new("ImageLabel", {
+            Name = "Background",
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 1, 0),
+            Image = "rbxassetid://3570695787",
+            ImageColor3 = Color3.fromRGB(40, 43, 48),
+            ScaleType = Enum.ScaleType.Slice,
+            SliceCenter = Rect.new(100, 100, 100, 100),
+            SliceScale = 0.05
+        }, {
+            Utility.new("UICorner", {CornerRadius = UDim.new(0, 8)}),
+            Utility.new("UIStroke", {
+                Color = self.Colors[Type] or self.Colors.Default,
+                Thickness = 2,
+                Transparency = 0.5
+            })
+        }),
+        
+        Utility.new("Frame", {
+            Name = "Content",
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -20, 1, -20),
+            Position = UDim2.new(0, 10, 0, 10)
+        }, {
+            Utility.new("ImageLabel", {
+                Name = "Icon",
+                BackgroundTransparency = 1,
+                Size = UDim2.new(0, 25, 0, 25),
+                Position = UDim2.new(0, 0, 0, 0),
+                Image = self.Icons[Type] or self.Icons.Default,
+                ImageColor3 = self.Colors[Type] or self.Colors.Default,
+                ScaleType = Enum.ScaleType.Fit
+            }),
+            
+            Utility.new("TextLabel", {
+                Name = "Title",
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0, 35, 0, 0),
+                Size = UDim2.new(1, -35, 0, 25),
+                Font = Enum.Font.GothamBold,
+                Text = Title or "Notification",
+                TextColor3 = Color3.fromRGB(255, 255, 255),
+                TextSize = 16,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                TextTruncate = Enum.TextTruncate.AtEnd
+            }),
+            
+            Utility.new("TextLabel", {
+                Name = "Message",
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0, 0, 0, 30),
+                Size = UDim2.new(1, 0, 1, Buttons and -70 or -30),
+                Font = Enum.Font.Gotham,
+                Text = Message or "",
+                TextColor3 = Color3.fromRGB(200, 200, 200),
+                TextSize = 14,
+                TextWrapped = true,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                TextYAlignment = Enum.TextYAlignment.Top
+            }),
+            
+            Utility.new("Frame", {
+                Name = "ButtonContainer",
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0, 0, 1, Buttons and -40 or 0),
+                Size = UDim2.new(1, 0, 0, Buttons and 35 or 0),
+                Visible = Buttons and true or false
+            }, {
+                Utility.new("UIListLayout", {
+                    SortOrder = Enum.SortOrder.LayoutOrder,
+                    FillDirection = Enum.FillDirection.Horizontal,
+                    HorizontalAlignment = Enum.HorizontalAlignment.Right,
+                    Padding = UDim.new(0, 5)
+                })
+            }),
+            
+            Utility.new("Frame", {
+                Name = "ProgressBar",
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0, 0, 1, -5),
+                Size = UDim2.new(1, 0, 0, 3)
+            }, {
+                Utility.new("Frame", {
+                    Name = "Bar",
+                    BackgroundColor3 = self.Colors[Type] or self.Colors.Default,
+                    Size = UDim2.new(1, 0, 1, 0)
+                }, {
+                    Utility.new("UICorner", {CornerRadius = UDim.new(1, 0)})
+                })
+            })
+        })
+    })
+    
+    -- Add buttons if provided
+    local ButtonInstances = {}
+    if Buttons then
+        for i, ButtonInfo in ipairs(Buttons) do
+            local Button = Utility.new("TextButton", {
+                Name = "Button_" .. i,
+                Parent = Notification.Content.ButtonContainer,
+                BackgroundColor3 = ButtonInfo.Color or self.Colors[Type] or self.Colors.Default,
+                Size = UDim2.new(0, 80, 0, 30),
+                Font = Enum.Font.Gotham,
+                Text = ButtonInfo.Text or "Button",
+                TextColor3 = Color3.fromRGB(255, 255, 255),
+                TextSize = 14,
+                AutoButtonColor = false
+            }, {
+                Utility.new("UICorner", {CornerRadius = UDim.new(0, 4)}),
+                Utility.new("UIStroke", {
+                    Color = Color3.fromRGB(255, 255, 255),
+                    Thickness = 1,
+                    Transparency = 0.8
+                })
+            })
+            
+            Button.MouseButton1Down:Connect(function()
+                if ButtonInfo.Callback then
+                    pcall(ButtonInfo.Callback)
+                end
+                if ButtonInfo.CloseOnClick ~= false then
+                    Utility.Tween(Notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+                        Size = UDim2.new(1, 0, 0, 0)
+                    }):Play()
+                    Utility.Wait(0.3)
+                    if Notification and Notification.Parent then
+                        Notification:Destroy()
+                    end
+                end
+            end)
+            
+            table.insert(ButtonInstances, Button)
+        end
+    end
+    
+    -- Animate In
+    Utility.Tween(Notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(1, 0, 0, NotificationHeight)
+    }):Play()
+    
+    -- Progress Bar Animation
+    local ProgressBar = Notification.Content.ProgressBar.Bar
+    Utility.Tween(ProgressBar, TweenInfo.new(Duration, Enum.EasingStyle.Linear), {
+        Size = UDim2.new(0, 0, 1, 0)
+    }):Play()
+    
+    -- Auto-remove after duration
+    local AutoRemove = coroutine.create(function()
+        Utility.Wait(Duration)
+        Utility.Tween(Notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Size = UDim2.new(1, 0, 0, 0)
+        }):Play()
+        Utility.Wait(0.3)
+        if Notification and Notification.Parent then
+            Notification:Destroy()
+        end
+    end)
+    coroutine.resume(AutoRemove)
+    
+    return {
+        Destroy = function()
+            if Notification and Notification.Parent then
+                Utility.Tween(Notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+                    Size = UDim2.new(1, 0, 0, 0)
+                }):Play()
+                Utility.Wait(0.3)
+                Notification:Destroy()
+            end
+        end,
+        
+        UpdateButtons = function(NewButtons)
+            if Notification and Notification.Parent then
+                -- Clear existing buttons
+                for _, Button in ipairs(ButtonInstances) do
+                    Button:Destroy()
+                end
+                ButtonInstances = {}
+                
+                -- Add new buttons
+                for i, ButtonInfo in ipairs(NewButtons) do
+                    local Button = Utility.new("TextButton", {
+                        Name = "Button_" .. i,
+                        Parent = Notification.Content.ButtonContainer,
+                        BackgroundColor3 = ButtonInfo.Color or self.Colors[Type] or self.Colors.Default,
+                        Size = UDim2.new(0, 80, 0, 30),
+                        Font = Enum.Font.Gotham,
+                        Text = ButtonInfo.Text or "Button",
+                        TextColor3 = Color3.fromRGB(255, 255, 255),
+                        TextSize = 14,
+                        AutoButtonColor = false
+                    }, {
+                        Utility.new("UICorner", {CornerRadius = UDim.new(0, 4)}),
+                        Utility.new("UIStroke", {
+                            Color = Color3.fromRGB(255, 255, 255),
+                            Thickness = 1,
+                            Transparency = 0.8
+                        })
+                    })
+                    
+                    Button.MouseButton1Down:Connect(function()
+                        if ButtonInfo.Callback then
+                            pcall(ButtonInfo.Callback)
+                        end
+                        if ButtonInfo.CloseOnClick ~= false then
+                            Utility.Tween(Notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+                                Size = UDim2.new(1, 0, 0, 0)
+                            }):Play()
+                            Utility.Wait(0.3)
+                            if Notification and Notification.Parent then
+                                Notification:Destroy()
+                            end
+                        end
+                    end)
+                    
+                    table.insert(ButtonInstances, Button)
+                end
+            end
+        end
+    }
+end
+
 function Luminosity.new(Name, Header, Icon)
     local Main = Utility.new(
         -- Class --
@@ -1538,6 +1977,30 @@ function Luminosity.new(Name, Header, Icon)
 
     function Window:Alert()
         
+    end
+    -- Notification Methods
+    function Window:Notify(Title, Message, Type, Duration, Callback)
+        return Luminosity.Notify:Create(Title, Message, Type, Duration, Callback)
+    end
+
+    function Window:NotifySuccess(Title, Message, Duration, Callback)
+        return Luminosity.Notify:Success(Title, Message, Duration, Callback)
+    end
+
+    function Window:NotifyError(Title, Message, Duration, Callback)
+        return Luminosity.Notify:Error(Title, Message, Duration, Callback)
+    end
+
+    function Window:NotifyWarning(Title, Message, Duration, Callback)
+        return Luminosity.Notify:Warning(Title, Message, Duration, Callback)
+    end
+
+    function Window:NotifyInfo(Title, Message, Duration, Callback)
+        return Luminosity.Notify:Info(Title, Message, Duration, Callback)
+    end
+
+    function Window:NotifyExtended(Title, Message, Type, Buttons, Duration)
+        return Luminosity.Notify:Extended(Title, Message, Type, Buttons, Duration)
     end
 
     return setmetatable(Window, {__newindex = function(Self, Index, Value)
