@@ -619,12 +619,19 @@ local function CreateOptions(Frame)
         end)
 
         Container.TextBox.Input.FocusLost:Connect(function(EnterPressed, Input)
+            local Text = Container.TextBox.Input.Text
+            
+            -- НЕ очищаем текст автоматически
             if EnterPressed then
-                coroutine.wrap(function()
-                    local Success, Error = pcall(Properties.Function, Properties.Value)
-                    assert(Luminosity.Settings.Debug == false or Success, Error)
-                end)
-                Container.TextBox.Input.Text = ""
+                local Success, Error = pcall(Properties.Function, Text) -- Передаем текущий текст
+                assert(Luminosity.Settings.Debug == false or Success, Error)
+                -- Можно также обновить Properties.Value здесь, если нужно
+                Properties.Value = Text
+            else
+                -- Если нужно обрабатывать потерю фокуса без Enter
+                local Success, Error = pcall(Properties.Function, Text) -- Передаем текущий текст
+                assert(Luminosity.Settings.Debug == false or Success, Error)
+                Properties.Value = Text
             end
         end)
 
