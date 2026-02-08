@@ -595,19 +595,17 @@ local function CreateOptions(Frame)
             Properties.Value = Container.TextBox.Input.Text
         end)
 
-        Container.TextBox.Input.FocusLost:Connect(function(EnterPressed, Input)
+        Container.TextBox.Input.FocusLost:Connect(function(EnterPressed, Processed)
             local Text = Container.TextBox.Input.Text
             
-            -- НЕ очищаем текст автоматически
-            if EnterPressed then
-                local Success, Error = pcall(Properties.Function, Text) -- Передаем текущий текст
-                assert(Luminosity.Settings.Debug == false or Success, Error)
-                -- Можно также обновить Properties.Value здесь, если нужно
-                Properties.Value = Text
-            else
-                -- Если нужно обрабатывать потерю фокуса без Enter
-                local Success, Error = pcall(Properties.Function, Text) -- Передаем текущий текст
-                assert(Luminosity.Settings.Debug == false or Success, Error)
+            -- Вызываем callback если:
+            -- 1. Была нажата Enter (EnterPressed == true)
+            -- 2. Или фокус был потерян другим способом и событие не было обработано другими элементами
+            if EnterPressed or not Processed then
+                local Success, Error = pcall(Properties.Function, Text)
+                if not Success and Luminosity.Settings.Debug then
+                    warn("TextBox callback error:", Error)
+                end
                 Properties.Value = Text
             end
         end)
