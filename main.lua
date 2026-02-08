@@ -1308,7 +1308,7 @@ function Luminosity.new(Name, Header, Icon)
             Name = "Main",
             Parent = Luminosity.ScreenGui,
             Active = true,
-            Modal = true,
+            -- Убрано Modal = true, чтобы не блокировать шифтлок
             AnchorPoint = Vector2.new(0.5, 0.5),
             BackgroundTransparency = 1,
             Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -1470,6 +1470,7 @@ function Luminosity.new(Name, Header, Icon)
             Utility.new("UISizeConstraint", {MaxSize = Vector2.new(1400, 950), MinSize = Vector2.new(300, 200)})
         }
     )
+    
     Main.AnchorPoint = Vector2.new(0.5, 0.5)
     Main.Position = UDim2.new(0.5, 0, 0.5, 0)
     local DragPro = Utility.CreateDrag(Main, Main, {TweenDuration = 0.15, TweenStyle = Enum.EasingStyle.Quad})
@@ -1502,12 +1503,11 @@ function Luminosity.new(Name, Header, Icon)
 
         if Window.Toggled == true then
             Main.Visible = true
-            Main.AnchorPoint = Vector2.new(0, 0) -- Возвращаем AnchorPoint в начальное состояние
-            Main.Position = WindowInfo.PositionSave or UDim2.new(0.5, 0, 0.5, 0) -- Используем сохраненную позицию или центр
+            Main.AnchorPoint = Vector2.new(0, 0)
+            Main.Position = WindowInfo.PositionSave or UDim2.new(0.5, 0, 0.5, 0)
             Utility.Tween(Main, TweenInfo.new(0.25), {Size = WindowInfo.SizeSave}):Yield()
             Main.UISizeConstraint.MinSize = Vector2.new(300, 200)
         else
-            -- Сохраняем текущую позицию и размер перед закрытием
             WindowInfo.SizeSave = Main.Size
             WindowInfo.PositionSave = Main.Position
             WindowInfo.AnchorPointSave = Main.AnchorPoint
@@ -1515,7 +1515,6 @@ function Luminosity.new(Name, Header, Icon)
             local AbsolutePosition = Main.AbsolutePosition
             local AbsoulteSize = Main.AbsoluteSize
             
-            -- Позиционируем окно для анимации закрытия
             Main.AnchorPoint = Vector2.new(0.5, 0.5)
             Main.Position = UDim2.new(0, AbsolutePosition.X + (AbsoulteSize.X * 0.5), 0, AbsolutePosition.Y + (AbsoulteSize.Y * 0.5))
             Main.UISizeConstraint.MinSize = Vector2.new(0, 0)
