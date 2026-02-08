@@ -750,7 +750,9 @@ local function CreateOptions(Frame)
 
         Services.UserInputService.InputChanged:Connect(function(Input)
             if Info.Sliding == true and Input.UserInputType == Enum.UserInputType.MouseMovement then
-                UpdateSlider(((Input.Position.X - Container.Bar.AbsolutePosition.X) / Container.Bar.AbsoluteSize.X) * Properties.Settings.Max)
+                local percentage = math.clamp((Input.Position.X - Container.Bar.AbsolutePosition.X) / Container.Bar.AbsoluteSize.X, 0, 1)
+                local value = Properties.Settings.Min + (percentage * (Properties.Settings.Max - Properties.Settings.Min))
+                UpdateSlider(value)
                 Info.LastSelected = time()
                 local Success, Error = pcall(Properties.Function, Properties.Value)
                 assert(Luminosity.Settings.Debug == false or Success, Error)
@@ -767,7 +769,9 @@ local function CreateOptions(Frame)
         }
         Container.MouseButton1Down:Connect(function()
             Info.Sliding = true
-            UpdateSlider(((Services.UserInputService:GetMouseLocation().X - Container.Bar.AbsolutePosition.X) / Container.Bar.AbsoluteSize.X) * Properties.Settings.Max)
+            local percentage = math.clamp((Services.UserInputService:GetMouseLocation().X - Container.Bar.AbsolutePosition.X) / Container.Bar.AbsoluteSize.X, 0, 1)
+            local value = Properties.Settings.Min + (percentage * (Properties.Settings.Max - Properties.Settings.Min))
+            UpdateSlider(value)
             Info.LastSelected = time()
             CircleTweens.Visible:Play()
             RippleTweens.Visible:Play()
@@ -799,7 +803,7 @@ local function CreateOptions(Frame)
             elseif tonumber(Text) == nil then
                 Container.Value.Text = tostring(Properties.Settings.Min)
             end
-            UpdateSlider(tonumber(Container.TextBox.Text) or Options.Min)
+            UpdateSlider(tonumber(Text) or Properties.Settings.Min)
             local Success, Error = pcall(Properties.Function, Properties.Value)
             assert(Luminosity.Settings.Debug == false or Success, Error)
         end)
