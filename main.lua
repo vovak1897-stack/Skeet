@@ -1506,7 +1506,12 @@ function Luminosity.new(Name, Header, Icon)
             Main.AnchorPoint = Vector2.new(0, 0)
             Main.Position = WindowInfo.PositionSave or UDim2.new(0.5, 0, 0.5, 0)
             Utility.Tween(Main, TweenInfo.new(0.25), {Size = WindowInfo.SizeSave}):Yield()
-            Main.UISizeConstraint.MinSize = Vector2.new(300, 200)
+            
+            -- Безопасное обращение к UISizeConstraint
+            local uiSizeConstraint = Main:FindFirstChildOfClass("UISizeConstraint")
+            if uiSizeConstraint then
+                uiSizeConstraint.MinSize = Vector2.new(300, 200)
+            end
         else
             WindowInfo.SizeSave = Main.Size
             WindowInfo.PositionSave = Main.Position
@@ -1517,7 +1522,12 @@ function Luminosity.new(Name, Header, Icon)
             
             Main.AnchorPoint = Vector2.new(0.5, 0.5)
             Main.Position = UDim2.new(0, AbsolutePosition.X + (AbsoulteSize.X * 0.5), 0, AbsolutePosition.Y + (AbsoulteSize.Y * 0.5))
-            Main.UISizeConstraint.MinSize = Vector2.new(0, 0)
+            
+            -- Безопасное обращение к UISizeConstraint
+            local uiSizeConstraint = Main:FindFirstChildOfClass("UISizeConstraint")
+            if uiSizeConstraint then
+                uiSizeConstraint.MinSize = Vector2.new(0, 0)
+            end
             
             Utility.Tween(Main, TweenInfo.new(0.5), {Size = UDim2.new(0, 0, 0, 0)}):Yield()
             Main.Visible = false
